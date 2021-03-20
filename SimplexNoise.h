@@ -27,6 +27,12 @@ Original gist url: https://gist.github.com/Slipyx/2372043
 #include <math.h>
 #include "Arduino.h"
 
+#define SN_SMALL //<-- Comment this to enable randomness
+
+#ifndef SN_SMALL
+#define SN_RANDOM
+#endif
+
 class Grad {
 public:
     Grad( int8_t x, int8_t y, int8_t z ) : x(x), y(y), z(z) {}
@@ -46,7 +52,6 @@ private:
     static const double F2;
     static const double G2;
     static const Grad grad3[12];
-    static const uint8_t p[256];
     static uint8_t perm[512];
     static uint8_t permMod12[512];
 };

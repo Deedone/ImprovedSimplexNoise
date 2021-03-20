@@ -1,4 +1,5 @@
-# SimplexNoise
+# ImprovedSimplexNoise
 Arduino Library for SimplexNoise
-
-Video for servo example that currently uses a ESP8266: https://www.youtube.com/watch?v=SjVWmJZx0kk
+This is an improved version of [this library](https://github.com/jshaw/SimplexNoise).
+Improvements consist mainly of decreasing the memory footprint and allowance of true randomization.
+You can choose reduced memory or randomization by toggling defines in the lib's header file.

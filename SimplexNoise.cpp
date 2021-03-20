@@ -28,7 +28,13 @@ Original gist url: https://gist.github.com/Slipyx/2372043
 // Private static member definitions
 const double SimplexNoise::F2 = 0.5 * (sqrt( 3.0 ) - 1.0);
 const double SimplexNoise::G2 = (3.0 - sqrt( 3.0 )) / 6.0;
-const uint8_t SimplexNoise::p[256] = {
+#ifdef SN_SMALL
+#define P(addr) pgm_read_byte(p + (addr))
+static const uint8_t p[512] PROGMEM = {
+#else
+#define P(addr) p[addr]
+static uint8_t p[512] = {
+#endif
     151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,
     142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,
     203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,
@@ -48,16 +54,14 @@ const Grad SimplexNoise::grad3[12] = {
     Grad(-1,0,1),Grad(1,0,-1),Grad(-1,0,-1),Grad(0,1,1),Grad(0,-1,1),
     Grad(0,1,-1),Grad(0,-1,-1)
 };
-uint8_t SimplexNoise::perm[512] = {0};
-uint8_t SimplexNoise::permMod12[512] = {0};
 
 // Initialize permutaion arrays
 void SimplexNoise::init() {
+#ifdef SN_RANDOM
     for ( uint16_t i = 0; i < 512; ++i ) {
-        perm[i] = p[i & 255];
-        permMod12[i] = static_cast<uint8_t>(perm[i] % 12);
+        p[i] = random(256);
     }
-    delete[] &p; // lol what
+#endif
 }
 
 // Fast floor
@@ -89,9 +93,9 @@ double SimplexNoise::noise( double xin, double yin ) {
     double y2 = y0 - 1.0 + 2.0 * G2;
     uint8_t ii = i & 255;
     uint8_t jj = j & 255;
-    uint8_t gi0 = permMod12[ii + perm[jj]];
-    uint8_t gi1 = permMod12[ii + i1 + perm[jj + j1]];
-    uint8_t gi2 = permMod12[ii + 1 + perm[jj + 1]];
+    uint8_t gi0 = P(ii + P(jj)) % 12;
+    uint8_t gi1 = P(ii + i1 + P(jj + j1)) % 12;
+    uint8_t gi2 = P(ii + 1 + P(jj + 1)) % 12;
     double n0 = 0.0;
     double t0 = 0.5 - x0 * x0 - y0 * y0;
     if ( t0 >= 0.0 ) {
